@@ -13,14 +13,12 @@ An open-source project dedicated to developing intelligent AI systems for the wo
 
 ### 🛠 Current Technologies (Phase 1)
 - Python 3
-- ROS2 (Robot Operating System 2)
+- ROS2
 - Gazebo simulation
-- PyTorch for machine learning
-- mars-sim integration
+- PyTorch
 
 ### 🚀 Quick Start
 
 ```bash
-# Clone the repository
 git clone [https://github.com/IAN-mars-colony/IAN-Mars-Colony.git](https://github.com/IAN-mars-colony/IAN-Mars-Colony.git)
 cd IAN-Mars-Colony
