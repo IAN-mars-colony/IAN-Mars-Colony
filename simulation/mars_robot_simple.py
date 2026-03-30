@@ -10,7 +10,7 @@ ACTIONS = ["explore", "collect", "charge", "return", "idle"]
 GRID_SIZE = 20
 CELL_SIZE = 30
 
-# ================= LSTM + DOUBLE DQN MODEL ================= #
+# ================= LSTM + DOUBLE DQN ================= #
 class LSTMDoubleDQN(nn.Module):
     def __init__(self, input_size=12, hidden_size=128, output_size=5):
         super().__init__()
@@ -196,14 +196,11 @@ class Robot:
         for dx, dy in directions:
             nx = max(0, min(19, self.x + dx))
             ny = max(0, min(19, self.y + dy))
-            if (nx, ny) in self.last_positions[-5:]:
-                continue
+            if (nx, ny) in self.last_positions[-5:]: continue
 
             score = 8 if (nx, ny) not in self.visited else -5
-            if (nx, ny) in Robot.broadcast_memory:
-                score += 13
-            if (nx, ny) in self.colony.map.resources:
-                score += 22
+            if (nx, ny) in Robot.broadcast_memory: score += 13
+            if (nx, ny) in self.colony.map.resources: score += 22
 
             if score > best_score:
                 best_score = score
@@ -249,7 +246,6 @@ class Colony:
     def draw(self, episode, step):
         self.screen.fill((15, 15, 35))
 
-        # Draw resources and grid
         for y in range(GRID_SIZE):
             for x in range(GRID_SIZE):
                 rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
@@ -257,30 +253,25 @@ class Colony:
                     pygame.draw.rect(self.screen, (0, 220, 120), rect)
                 pygame.draw.rect(self.screen, (50, 50, 70), rect, 1)
 
-        # Charging stations
         for sx, sy in self.grid.stations:
-            pygame.draw.circle(self.screen, (255, 240, 0),
-                               (sx * CELL_SIZE + CELL_SIZE//2, sy * CELL_SIZE + CELL_SIZE//2), CELL_SIZE//2 - 5)
+            pygame.draw.circle(self.screen, (255, 240, 0), 
+                             (sx * CELL_SIZE + CELL_SIZE//2, sy * CELL_SIZE + CELL_SIZE//2), CELL_SIZE//2 - 5)
 
-        # Base
-        pygame.draw.rect(self.screen, (30, 120, 255),
-                         (self.base[0]*CELL_SIZE, self.base[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE), 5)
+        pygame.draw.rect(self.screen, (30, 120, 255), 
+                        (self.base[0]*CELL_SIZE, self.base[1]*CELL_SIZE, CELL_SIZE, CELL_SIZE), 5)
 
-        # Robots
         for robot in self.robots:
             if robot.battery <= 0: continue
             color = (255, 80, 80) if robot.battery > 40 else (255, 30, 30)
-            pygame.draw.circle(self.screen, color,
-                               (robot.x * CELL_SIZE + CELL_SIZE//2, robot.y * CELL_SIZE + CELL_SIZE//2), CELL_SIZE//2 - 7)
+            pygame.draw.circle(self.screen, color, 
+                             (robot.x*CELL_SIZE + CELL_SIZE//2, robot.y*CELL_SIZE + CELL_SIZE//2), CELL_SIZE//2 - 7)
 
-        # Storm effect
         if self.env.critical_storm:
-            overlay = pygame.Surface((GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE))
+            overlay = pygame.Surface((GRID_SIZE*CELL_SIZE, GRID_SIZE*CELL_SIZE))
             overlay.set_alpha(90)
             overlay.fill((220, 200, 80))
             self.screen.blit(overlay, (0, 0))
 
-        # Dashboard
         info = [
             f"Episode: {episode}   Step: {step}",
             f"Resources: {self.resources_collected:.1f}",
@@ -289,16 +280,15 @@ class Colony:
             f"Active Robots: {sum(1 for r in self.robots if r.battery > 0)}/10"
         ]
         for i, line in enumerate(info):
-            text = self.font.render(line, True, (255, 255, 255))
-            self.screen.blit(text, (GRID_SIZE * CELL_SIZE + 25, 30 + i * 32))
+            text = self.font.render(line, True, (255,255,255))
+            self.screen.blit(text, (GRID_SIZE*CELL_SIZE + 25, 30 + i*32))
 
         pygame.display.flip()
 
     def step(self):
         total_reward = 0.0
         for robot in self.robots:
-            if robot.battery <= 0:
-                continue
+            if robot.battery <= 0: continue
 
             state_seq = robot.get_state(self)
             action_idx = self.brain.act(state_seq)
@@ -318,7 +308,6 @@ class Colony:
         return total_reward
 
     def _execute_action(self, robot, action):
-        """Fixed and complete action execution"""
         reward = -0.25
 
         if action == "explore":
@@ -376,7 +365,7 @@ class Colony:
 
 # ================= MAIN ================= #
 if __name__ == "__main__":
-    print("🚀 IAN Mars Colony - Phase XIII Fixed & Complete\n")
+    print("🚀 IAN Mars Colony - Phase XIII Fixed Version\n")
     random.seed(42)
 
     colony = Colony()
